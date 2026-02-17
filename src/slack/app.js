@@ -59,8 +59,7 @@ function createSlackApp() {
 
     const app = new App({
       receiver,
-      // 기존 토큰이 있으면 기본값으로 사용 (기존 설치 호환)
-      token: config.slack.botToken,
+      // OAuth 모드에서는 token을 전달하지 않음 (installationStore가 토큰 관리)
     });
 
     // 이벤트 핸들러 설정
