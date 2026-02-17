@@ -3,6 +3,7 @@ const path = require('path');
 const config = require('./config');
 const { createSlackApp } = require('./slack/app');
 const fileStore = require('./storage/fileStore');
+const workspaceStore = require('./storage/workspaceStore');
 
 // Express 앱 생성
 const expressApp = express();
@@ -69,12 +70,95 @@ expressApp.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     storedFiles: fileStore.size,
+    installedWorkspaces: workspaceStore.size,
     uptime: process.uptime(),
   });
 });
 
+// 설치 페이지 (Add to Slack)
+expressApp.get('/slack/install', (req, res) => {
+  const clientId = config.slack.clientId;
+
+  if (!clientId) {
+    return res.status(500).send('OAuth is not configured. Please set SLACK_CLIENT_ID and SLACK_CLIENT_SECRET.');
+  }
+
+  const scopes = ['files:read', 'chat:write', 'channels:history', 'groups:history'];
+  const redirectUri = `${config.server.baseUrl}/slack/oauth_redirect`;
+
+  const installUrl = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes.join(',')}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+  res.render('install', { installUrl });
+});
+
+// OAuth 콜백 처리
+expressApp.get('/slack/oauth_redirect', async (req, res) => {
+  const { code, error } = req.query;
+
+  if (error) {
+    console.error('[OAuth] Error from Slack:', error);
+    return res.render('install-error', { error: `Slack returned an error: ${error}` });
+  }
+
+  if (!code) {
+    return res.render('install-error', { error: 'No authorization code received' });
+  }
+
+  try {
+    // 인증 코드로 토큰 교환
+    const response = await fetch('https://slack.com/api/oauth.v2.access', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: config.slack.clientId,
+        client_secret: config.slack.clientSecret,
+        code,
+        redirect_uri: `${config.server.baseUrl}/slack/oauth_redirect`,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.ok) {
+      console.error('[OAuth] Token exchange failed:', data);
+      return res.render('install-error', { error: `Token exchange failed: ${data.error}` });
+    }
+
+    // 설치 정보 저장
+    const installation = {
+      team: {
+        id: data.team.id,
+        name: data.team.name,
+      },
+      bot: {
+        token: data.access_token,
+        userId: data.bot_user_id,
+        id: data.bot_user_id,
+      },
+    };
+
+    await workspaceStore.save(installation);
+
+    console.log(`[OAuth] Successfully installed to workspace: ${data.team.name} (${data.team.id})`);
+
+    // 성공 페이지 표시
+    res.render('install-success', {
+      teamName: data.team.name,
+      teamId: data.team.id,
+      appId: data.app_id || '',
+    });
+  } catch (err) {
+    console.error('[OAuth] Error during token exchange:', err);
+    res.render('install-error', { error: `Installation failed: ${err.message}` });
+  }
+});
+
 // 홈 페이지
 expressApp.get('/', (req, res) => {
+  const hasOAuth = config.slack.clientId && config.slack.clientSecret;
+
   res.send(`
     <!DOCTYPE html>
     <html>
@@ -106,6 +190,20 @@ expressApp.get('/', (req, res) => {
           border-radius: 4px;
           font-family: monospace;
         }
+        .install-link {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 12px 24px;
+          background: #4A154B;
+          color: white;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 500;
+          transition: background 0.2s;
+        }
+        .install-link:hover {
+          background: #611f69;
+        }
       </style>
     </head>
     <body>
@@ -113,6 +211,7 @@ expressApp.get('/', (req, res) => {
         <h1>Slack Markdown Viewer</h1>
         <p>Upload a <code>.md</code> file to any Slack channel where this bot is installed.</p>
         <p>The bot will automatically render it and post a link to view the formatted markdown.</p>
+        ${hasOAuth ? '<a href="/slack/install" class="install-link">Add to Slack</a>' : ''}
       </div>
     </body>
     </html>
@@ -122,17 +221,32 @@ expressApp.get('/', (req, res) => {
 // 앱 시작
 async function start() {
   try {
-    // Slack 앱 시작
-    const slackApp = createSlackApp();
-    await slackApp.start();
-    console.log('Slack app started in Socket Mode');
+    const { app: slackApp, receiver } = createSlackApp();
 
-    // Express 서버 시작
-    expressApp.listen(config.server.port, () => {
-      console.log(`Express server running on port ${config.server.port}`);
-      console.log(`Base URL: ${config.server.baseUrl}`);
-      console.log('\nReady to receive markdown files!');
-    });
+    if (receiver) {
+      // OAuth 모드 (HTTP) - Bolt의 receiver를 Express에 마운트
+      expressApp.use('/slack/events', receiver.router);
+
+      // Express 서버 시작
+      expressApp.listen(config.server.port, () => {
+        console.log(`[Server] Express server running on port ${config.server.port}`);
+        console.log(`[Server] Base URL: ${config.server.baseUrl}`);
+        console.log(`[Server] Install URL: ${config.server.baseUrl}/slack/install`);
+        console.log(`[Server] OAuth Redirect: ${config.server.baseUrl}/slack/oauth_redirect`);
+        console.log('\n[Server] Ready to receive markdown files!');
+      });
+    } else {
+      // Socket Mode - 기존 방식
+      await slackApp.start();
+      console.log('[Slack] Slack app started in Socket Mode');
+
+      // Express 서버 시작
+      expressApp.listen(config.server.port, () => {
+        console.log(`[Server] Express server running on port ${config.server.port}`);
+        console.log(`[Server] Base URL: ${config.server.baseUrl}`);
+        console.log('\n[Server] Ready to receive markdown files!');
+      });
+    }
   } catch (error) {
     console.error('Failed to start app:', error);
     process.exit(1);

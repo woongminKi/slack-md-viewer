@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const config = require('../config');
 const fileStore = require('../storage/fileStore');
+const workspaceStore = require('../storage/workspaceStore');
 const { renderMarkdown, extractTitle } = require('../markdown/renderer');
 
 /**
@@ -9,18 +10,35 @@ const { renderMarkdown, extractTitle } = require('../markdown/renderer');
  */
 function setupHandlers(app) {
   // file_shared 이벤트 리스너
-  app.event('file_shared', async ({ event, client, logger }) => {
+  app.event('file_shared', async ({ event, client, logger, context }) => {
     try {
       logger.info('File shared event received:', event);
 
       const fileId = event.file_id;
       const channelId = event.channel_id;
+      const teamId = context.teamId || event.team_id;
+
+      // 워크스페이스별 토큰 가져오기 (OAuth 모드)
+      let botToken = context.botToken;
+
+      // context에 토큰이 없으면 워크스페이스 스토어에서 조회
+      if (!botToken && teamId) {
+        const installation = await workspaceStore.get(teamId);
+        if (installation) {
+          botToken = installation.botToken;
+        }
+      }
+
+      // 그래도 없으면 기본 토큰 사용 (Socket Mode 호환)
+      if (!botToken) {
+        botToken = config.slack.botToken;
+      }
 
       // 파일 정보 가져오기
       const fileInfo = await client.files.info({ file: fileId });
       const file = fileInfo.file;
 
-      logger.info('File info:', { name: file.name, mimetype: file.mimetype });
+      logger.info('File info:', { name: file.name, mimetype: file.mimetype, teamId });
 
       // .md 파일인지 확인
       if (!file.name.endsWith('.md')) {
@@ -28,8 +46,8 @@ function setupHandlers(app) {
         return;
       }
 
-      // 파일 다운로드
-      const markdown = await downloadFile(file.url_private_download, config.slack.botToken);
+      // 파일 다운로드 (해당 워크스페이스의 토큰 사용)
+      const markdown = await downloadFile(file.url_private_download, botToken);
 
       if (!markdown) {
         logger.error('Failed to download file');
@@ -43,13 +61,14 @@ function setupHandlers(app) {
       // 고유 ID 생성
       const id = crypto.randomBytes(8).toString('hex');
 
-      // 저장
+      // 저장 (workspaceId 포함)
       fileStore.save(id, {
         html,
         title,
         fileName: file.name,
         uploadedBy: event.user_id,
         channelId,
+        workspaceId: teamId,
       });
 
       // 뷰어 URL 생성
@@ -83,10 +102,9 @@ function setupHandlers(app) {
             ],
           },
         ],
-        // 원본 메시지에 스레드로 달기 (file_shared에는 message_ts가 없어서 채널에 직접)
       });
 
-      logger.info(`Markdown rendered and message sent. URL: ${viewerUrl}`);
+      logger.info(`Markdown rendered and message sent. URL: ${viewerUrl} (team: ${teamId})`);
     } catch (error) {
       logger.error('Error handling file_shared event:', error);
     }
