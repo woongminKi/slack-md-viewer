@@ -225,7 +225,8 @@ async function start() {
 
     if (receiver) {
       // OAuth 모드 (HTTP) - Bolt의 receiver를 Express에 마운트
-      expressApp.use('/slack/events', receiver.router);
+      // receiver.router는 이미 /slack/events 경로를 포함하므로 루트에 마운트
+      expressApp.use(receiver.router);
 
       // Express 서버 시작
       expressApp.listen(config.server.port, () => {
