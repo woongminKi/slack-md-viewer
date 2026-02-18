@@ -16,9 +16,9 @@ expressApp.set('views', path.join(__dirname, 'views'));
 expressApp.use(express.static(path.join(__dirname, '..', 'public')));
 
 // 마크다운 뷰어 라우트
-expressApp.get('/view/:id', (req, res) => {
+expressApp.get('/view/:id', async (req, res) => {
   const { id } = req.params;
-  const data = fileStore.get(id);
+  const data = await fileStore.get(id);
 
   if (!data) {
     return res.status(404).send(`
@@ -66,11 +66,16 @@ expressApp.get('/view/:id', (req, res) => {
 });
 
 // 헬스 체크
-expressApp.get('/health', (req, res) => {
+expressApp.get('/health', async (req, res) => {
+  const [storedFiles, installedWorkspaces] = await Promise.all([
+    fileStore.getSize(),
+    workspaceStore.getSize(),
+  ]);
+
   res.json({
     status: 'ok',
-    storedFiles: fileStore.size,
-    installedWorkspaces: workspaceStore.size,
+    storedFiles,
+    installedWorkspaces,
     uptime: process.uptime(),
   });
 });

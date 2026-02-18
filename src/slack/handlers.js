@@ -62,7 +62,7 @@ function setupHandlers(app) {
       const id = crypto.randomBytes(8).toString('hex');
 
       // 저장 (workspaceId 포함)
-      fileStore.save(id, {
+      await fileStore.save(id, {
         html,
         title,
         fileName: file.name,

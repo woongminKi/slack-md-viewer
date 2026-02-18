@@ -15,6 +15,10 @@ module.exports = {
   },
   storage: {
     ttl: parseInt(process.env.STORAGE_TTL) || 24 * 60 * 60 * 1000, // 24 hours
-    dataDir: process.env.DATA_DIR || './data', // 워크스페이스 토큰 저장 경로
+    ttlSeconds: Math.floor((parseInt(process.env.STORAGE_TTL) || 24 * 60 * 60 * 1000) / 1000), // TTL in seconds for Redis
+    dataDir: process.env.DATA_DIR || './data', // 워크스페이스 토큰 저장 경로 (fallback)
+  },
+  redis: {
+    url: process.env.REDIS_URL || null, // Redis connection URL
   },
 };
