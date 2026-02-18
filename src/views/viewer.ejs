@@ -168,7 +168,25 @@
         position: static;
       }
     }
+
+    /* Mermaid 다이어그램 스타일 */
+    .mermaid {
+      text-align: center;
+      margin: 16px 0;
+    }
+
+    pre code.language-mermaid {
+      display: none;
+    }
+
+    pre:has(code.language-mermaid) {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
   </style>
+  <!-- Mermaid.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
   <header class="header">
@@ -182,5 +200,35 @@
       <%- html %>
     </article>
   </main>
+  <script>
+    // Mermaid 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+      // 다크모드 감지
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'default',
+        securityLevel: 'loose',
+      });
+
+      // mermaid 코드 블록 찾기 및 렌더링
+      document.querySelectorAll('pre code.language-mermaid, pre code.hljs.language-mermaid').forEach(function(codeBlock, index) {
+        const pre = codeBlock.parentElement;
+        const code = codeBlock.textContent;
+
+        // 새 div 생성
+        const div = document.createElement('div');
+        div.className = 'mermaid';
+        div.textContent = code;
+
+        // pre 태그를 mermaid div로 교체
+        pre.parentNode.replaceChild(div, pre);
+      });
+
+      // Mermaid 렌더링 실행
+      mermaid.run();
+    });
+  </script>
 </body>
 </html>
