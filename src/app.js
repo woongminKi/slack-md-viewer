@@ -75,6 +75,16 @@ expressApp.get('/health', (req, res) => {
   });
 });
 
+// Privacy Policy 페이지
+expressApp.get('/privacy', (req, res) => {
+  res.render('privacy');
+});
+
+// Terms of Service 페이지 (선택적)
+expressApp.get('/terms', (req, res) => {
+  res.render('terms');
+});
+
 // 설치 페이지 (Add to Slack)
 expressApp.get('/slack/install', (req, res) => {
   const clientId = config.slack.clientId;

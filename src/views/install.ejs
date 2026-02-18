@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Install Slack Markdown Viewer</title>
+  <meta name="description" content="Upload .md files to Slack and instantly view beautifully rendered markdown with syntax highlighting.">
   <style>
     * {
       margin: 0;
@@ -12,75 +13,160 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
+      min-height: 100vh;
+      padding: 40px 20px;
     }
     .container {
-      text-align: center;
-      padding: 48px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .card {
       background: white;
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      max-width: 480px;
-      width: 100%;
+      padding: 48px;
+      margin-bottom: 24px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
     }
     .logo {
-      font-size: 48px;
+      font-size: 64px;
       margin-bottom: 16px;
     }
     h1 {
       color: #24292f;
       margin-bottom: 12px;
-      font-size: 28px;
+      font-size: 32px;
     }
-    .description {
+    .tagline {
       color: #57606a;
-      line-height: 1.6;
-      margin-bottom: 32px;
-      font-size: 16px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    .demo-section {
+      margin: 32px 0;
+      padding: 24px;
+      background: #f6f8fa;
+      border-radius: 12px;
+    }
+    .demo-section h3 {
+      color: #24292f;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .demo-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .demo-step {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 16px 8px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .demo-step .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .demo-step p {
+      font-size: 12px;
+      color: #57606a;
+    }
+    .demo-arrow {
+      color: #8b949e;
+      font-size: 20px;
     }
     .features {
-      text-align: left;
       margin-bottom: 32px;
-      padding: 20px;
-      background: #f6f8fa;
-      border-radius: 8px;
     }
     .features h3 {
       color: #24292f;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .features ul {
-      list-style: none;
-      color: #57606a;
+    .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
-    .features li {
-      padding: 8px 0;
-      padding-left: 24px;
-      position: relative;
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f6f8fa;
+      border-radius: 8px;
     }
-    .features li::before {
-      content: "\2713";
-      position: absolute;
-      left: 0;
+    .feature-item .check {
       color: #2da44e;
       font-weight: bold;
+      font-size: 16px;
+    }
+    .feature-item span {
+      color: #57606a;
+      font-size: 14px;
+    }
+    .permissions {
+      margin-bottom: 32px;
+      padding: 20px;
+      background: #fff8c5;
+      border-radius: 12px;
+      border: 1px solid #d4a72c;
+    }
+    .permissions h3 {
+      color: #735c0f;
+      margin-bottom: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .permissions ul {
+      list-style: none;
+      color: #735c0f;
+    }
+    .permissions li {
+      padding: 6px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .permissions li::before {
+      content: "\2022";
+      font-weight: bold;
+    }
+    .permissions .permission-desc {
+      color: #9a6700;
+      font-size: 12px;
+      margin-left: 16px;
+    }
+    .cta-section {
+      text-align: center;
     }
     .slack-button {
-      display: inline-block;
-      padding: 14px 32px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 40px;
       background: #4A154B;
       color: white;
       text-decoration: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 18px;
       font-weight: 600;
       transition: all 0.2s ease;
       box-shadow: 0 4px 12px rgba(74, 21, 75, 0.3);
@@ -91,44 +177,208 @@
       box-shadow: 0 6px 16px rgba(74, 21, 75, 0.4);
     }
     .slack-button svg {
-      vertical-align: middle;
-      margin-right: 8px;
+      width: 24px;
+      height: 24px;
     }
-    .footer {
+    .footer-note {
       margin-top: 24px;
       color: #8b949e;
       font-size: 13px;
+      text-align: center;
+    }
+    .footer-note a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .footer-note a:hover {
+      text-decoration: underline;
+    }
+    .legal-links {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e1e4e8;
+    }
+    .legal-links a {
+      color: #57606a;
+      text-decoration: none;
+      font-size: 13px;
+      margin: 0 12px;
+    }
+    .legal-links a:hover {
+      color: #667eea;
+      text-decoration: underline;
+    }
+    .faq {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 32px;
+    }
+    .faq h2 {
+      color: #24292f;
+      font-size: 20px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .faq-item {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .faq-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .faq-item h4 {
+      color: #24292f;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      color: #57606a;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    @media (max-width: 480px) {
+      .card {
+        padding: 32px 24px;
+      }
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+      .demo-flow {
+        flex-direction: column;
+      }
+      .demo-arrow {
+        transform: rotate(90deg);
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="logo">:page_facing_up:</div>
-    <h1>Slack Markdown Viewer</h1>
-    <p class="description">
-      Upload <code>.md</code> files to Slack and instantly view beautifully rendered markdown with syntax highlighting.
-    </p>
+    <div class="card">
+      <div class="header">
+        <div class="logo">:page_facing_up:</div>
+        <h1>Slack Markdown Viewer</h1>
+        <p class="tagline">
+          Upload <code>.md</code> files to Slack and instantly view beautifully rendered markdown with syntax highlighting.
+        </p>
+      </div>
 
-    <div class="features">
-      <h3>Features</h3>
-      <ul>
-        <li>Automatic markdown rendering</li>
-        <li>Syntax highlighting for code blocks</li>
-        <li>GitHub-style formatting</li>
-        <li>Easy sharing with shareable links</li>
-      </ul>
+      <div class="demo-section">
+        <h3>How It Works</h3>
+        <div class="demo-flow">
+          <div class="demo-step">
+            <div class="icon">:open_file_folder:</div>
+            <p>Upload .md file<br>to Slack</p>
+          </div>
+          <div class="demo-arrow">→</div>
+          <div class="demo-step">
+            <div class="icon">:magic_wand:</div>
+            <p>Auto-rendered<br>by bot</p>
+          </div>
+          <div class="demo-arrow">→</div>
+          <div class="demo-step">
+            <div class="icon">:link:</div>
+            <p>Get shareable<br>view link</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="features">
+        <h3>Features</h3>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="check">✓</span>
+            <span>GitHub-style formatting</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">✓</span>
+            <span>Syntax highlighting</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">✓</span>
+            <span>Auto table rendering</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">✓</span>
+            <span>Shareable links</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">✓</span>
+            <span>24h auto-cleanup</span>
+          </div>
+          <div class="feature-item">
+            <span class="check">✓</span>
+            <span>Free to use</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="permissions">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Required Permissions
+        </h3>
+        <ul>
+          <li><strong>files:read</strong></li>
+          <p class="permission-desc">Read uploaded markdown files</p>
+          <li><strong>chat:write</strong></li>
+          <p class="permission-desc">Post rendered link messages</p>
+          <li><strong>channels:history</strong> & <strong>groups:history</strong></li>
+          <p class="permission-desc">Detect file uploads in channels</p>
+        </ul>
+      </div>
+
+      <div class="cta-section">
+        <a href="<%= installUrl %>" class="slack-button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+          </svg>
+          Add to Slack
+        </a>
+        <p class="footer-note">
+          Free to use. Files auto-deleted after 24 hours.
+        </p>
+      </div>
+
+      <div class="legal-links">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="https://github.com/your-repo/slack-markdown-viewer" target="_blank">GitHub</a>
+      </div>
     </div>
 
-    <a href="<%= installUrl %>" class="slack-button">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
-      </svg>
-      Add to Slack
-    </a>
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
 
-    <p class="footer">
-      Free to use. Your files are stored temporarily and auto-deleted after 24 hours.
-    </p>
+      <div class="faq-item">
+        <h4>How do I use the app after installation?</h4>
+        <p>Simply invite the bot to any channel and upload a .md file. The bot will automatically render it and post a link.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>How long are rendered files available?</h4>
+        <p>All rendered files are automatically deleted after 24 hours. Re-upload the file to generate a new link.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>Is my data secure?</h4>
+        <p>Yes. We only process markdown files temporarily, never share data with third parties, and automatically delete everything after 24 hours.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>Can I use this in private channels?</h4>
+        <p>Yes! Just invite the bot to your private channel and it will work the same way.</p>
+      </div>
+    </div>
   </div>
 </body>
 </html>
