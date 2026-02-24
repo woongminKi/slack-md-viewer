@@ -357,7 +357,7 @@
       <div class="logo">:page_facing_up:</div>
       <h1>Slack Markdown Viewer</h1>
       <p class="tagline">
-        Upload <code>.md</code> files to Slack and instantly view beautifully rendered markdown with syntax highlighting.
+        Upload <code>.md</code> and <code>.html</code> files to Slack and instantly view beautifully rendered content with syntax highlighting.
       </p>
       <% if (hasOAuth) { %>
       <a href="/slack/install" class="cta-button">
@@ -378,15 +378,15 @@
       <div class="step">
         <div class="number">1</div>
         <div class="icon">:open_file_folder:</div>
-        <h3>Upload .md File</h3>
-        <p>Drag and drop your markdown file to any Slack channel where the bot is installed</p>
+        <h3>Upload File</h3>
+        <p>Drag and drop your .md or .html file to any Slack channel where the bot is installed</p>
       </div>
       <div class="step-arrow">→</div>
       <div class="step">
         <div class="number">2</div>
         <div class="icon">:magic_wand:</div>
         <h3>Auto Rendering</h3>
-        <p>The bot automatically detects and renders your markdown into beautiful HTML</p>
+        <p>The bot automatically detects and renders your files into beautiful, viewable content</p>
       </div>
       <div class="step-arrow">→</div>
       <div class="step">
@@ -431,6 +431,11 @@
         <div class="icon">:globe_with_meridians:</div>
         <h3>Shareable Links</h3>
         <p>Share rendered documents with anyone. Great for documentation, meeting notes, and technical specs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">:page_facing_up:</div>
+        <h3>HTML File Support</h3>
+        <p>Upload .html files directly. They're displayed in a secure sandbox, perfect for sharing reports and web content.</p>
       </div>
     </div>
   </section>
@@ -486,6 +491,10 @@
       <div class="syntax-item">
         <span class="check">✓</span>
         <span>Emoji Shortcodes</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>HTML Files (.html)</span>
       </div>
     </div>
   </section>
@@ -547,7 +556,7 @@ graph LR
       <a href="/privacy">Privacy Policy</a>
       <a href="/terms">Terms of Service</a>
       <a href="/support">Support</a>
-      <a href="https://github.com/your-repo/slack-markdown-viewer" target="_blank">GitHub</a>
+      <a href="https://github.com/woongminKi/slack-md-viewer" target="_blank">GitHub</a>
     </div>
     <p class="footer-copyright">
       &copy; 2025 Slack Markdown Viewer. All rights reserved.
