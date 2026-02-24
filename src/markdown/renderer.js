@@ -49,7 +49,18 @@ function extractTitle(markdown) {
   return match ? match[1].trim() : null;
 }
 
+/**
+ * HTML에서 title 태그 추출
+ * @param {string} html - HTML 문자열
+ * @returns {string|null} - 제목 또는 null
+ */
+function extractHtmlTitle(html) {
+  const match = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  return match ? match[1].trim() : null;
+}
+
 module.exports = {
   renderMarkdown,
   extractTitle,
+  extractHtmlTitle,
 };

@@ -50,7 +50,7 @@ function createSlackApp() {
       clientId: config.slack.clientId,
       clientSecret: config.slack.clientSecret,
       stateSecret: 'slack-md-viewer-state-secret',
-      scopes: ['files:read', 'chat:write', 'channels:history', 'groups:history'],
+      scopes: ['files:read', 'chat:write'],
       installationStore,
       installerOptions: {
         directInstall: true,

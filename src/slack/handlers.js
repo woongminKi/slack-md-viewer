@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const config = require('../config');
 const fileStore = require('../storage/fileStore');
 const workspaceStore = require('../storage/workspaceStore');
-const { renderMarkdown, extractTitle } = require('../markdown/renderer');
+const { renderMarkdown, extractTitle, extractHtmlTitle } = require('../markdown/renderer');
 
 /**
  * file_shared 이벤트 핸들러 설정
@@ -40,32 +40,49 @@ function setupHandlers(app) {
 
       logger.info('File info:', { name: file.name, mimetype: file.mimetype, teamId });
 
-      // .md 파일인지 확인
-      if (!file.name.endsWith('.md')) {
-        logger.info('Not a markdown file, skipping');
+      // 파일 확장자 확인
+      const isMarkdown = file.name.endsWith('.md');
+      const isHtml = file.name.endsWith('.html') || file.name.endsWith('.htm');
+
+      if (!isMarkdown && !isHtml) {
+        logger.info('Not a markdown or HTML file, skipping');
         return;
       }
 
       // 파일 다운로드 (해당 워크스페이스의 토큰 사용)
-      const markdown = await downloadFile(file.url_private_download, botToken);
+      const fileContent = await downloadFile(file.url_private_download, botToken);
 
-      if (!markdown) {
+      if (!fileContent) {
         logger.error('Failed to download file');
         return;
       }
 
-      // 마크다운을 HTML로 렌더링
-      const html = renderMarkdown(markdown);
-      const title = extractTitle(markdown) || file.name.replace('.md', '');
+      // 파일 타입별 처리
+      let html;
+      let title;
+      let fileType;
+
+      if (isMarkdown) {
+        // 마크다운을 HTML로 렌더링
+        html = renderMarkdown(fileContent);
+        title = extractTitle(fileContent) || file.name.replace('.md', '');
+        fileType = 'markdown';
+      } else if (isHtml) {
+        // HTML 파일은 그대로 사용
+        html = fileContent;
+        title = extractHtmlTitle(fileContent) || file.name.replace(/\.html?$/, '');
+        fileType = 'html';
+      }
 
       // 고유 ID 생성
       const id = crypto.randomBytes(8).toString('hex');
 
-      // 저장 (workspaceId 포함)
+      // 저장 (workspaceId, fileType 포함)
       await fileStore.save(id, {
         html,
         title,
         fileName: file.name,
+        fileType,
         uploadedBy: event.user_id,
         channelId,
         workspaceId: teamId,
@@ -74,16 +91,25 @@ function setupHandlers(app) {
       // 뷰어 URL 생성
       const viewerUrl = `${config.server.baseUrl}/view/${id}`;
 
+      // 파일 타입별 메시지 텍스트
+      const messageText = isMarkdown
+        ? '마크다운 파일이 렌더링되었습니다!'
+        : 'HTML 파일을 볼 수 있습니다!';
+      const buttonText = isMarkdown
+        ? 'View Rendered Markdown'
+        : 'View HTML';
+      const actionId = isMarkdown ? 'view_markdown' : 'view_html';
+
       // 채널에 댓글 달기
       await client.chat.postMessage({
         channel: channelId,
-        text: `Markdown file rendered! View it here: ${viewerUrl}`,
+        text: `File rendered! View it here: ${viewerUrl}`,
         blocks: [
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `:page_facing_up: *${title}*\n마크다운 파일이 렌더링되었습니다!`,
+              text: `:page_facing_up: *${title}*\n${messageText}`,
             },
           },
           {
@@ -93,18 +119,18 @@ function setupHandlers(app) {
                 type: 'button',
                 text: {
                   type: 'plain_text',
-                  text: 'View Rendered Markdown',
+                  text: buttonText,
                   emoji: true,
                 },
                 url: viewerUrl,
-                action_id: 'view_markdown',
+                action_id: actionId,
               },
             ],
           },
         ],
       });
 
-      logger.info(`Markdown rendered and message sent. URL: ${viewerUrl} (team: ${teamId})`);
+      logger.info(`${fileType} file processed and message sent. URL: ${viewerUrl} (team: ${teamId})`);
     } catch (error) {
       logger.error('Error handling file_shared event:', error);
     }
@@ -112,6 +138,10 @@ function setupHandlers(app) {
 
   // 버튼 클릭 액션 핸들러 (Slack에서 경고 방지)
   app.action('view_markdown', async ({ ack }) => {
+    await ack();
+  });
+
+  app.action('view_html', async ({ ack }) => {
     await ack();
   });
 }

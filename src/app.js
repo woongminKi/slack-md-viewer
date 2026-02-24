@@ -58,11 +58,20 @@ expressApp.get('/view/:id', async (req, res) => {
     `);
   }
 
-  res.render('viewer', {
-    title: data.title,
-    html: data.html,
-    fileName: data.fileName,
-  });
+  // 파일 타입에 따라 다른 뷰어 사용
+  if (data.fileType === 'html') {
+    res.render('viewer-html', {
+      title: data.title,
+      html: data.html,
+      fileName: data.fileName,
+    });
+  } else {
+    res.render('viewer', {
+      title: data.title,
+      html: data.html,
+      fileName: data.fileName,
+    });
+  }
 });
 
 // 헬스 체크
@@ -85,9 +94,14 @@ expressApp.get('/privacy', (req, res) => {
   res.render('privacy');
 });
 
-// Terms of Service 페이지 (선택적)
+// Terms of Service 페이지
 expressApp.get('/terms', (req, res) => {
   res.render('terms');
+});
+
+// Support 페이지
+expressApp.get('/support', (req, res) => {
+  res.render('support');
 });
 
 // 설치 페이지 (Add to Slack)
@@ -98,7 +112,7 @@ expressApp.get('/slack/install', (req, res) => {
     return res.status(500).send('OAuth is not configured. Please set SLACK_CLIENT_ID and SLACK_CLIENT_SECRET.');
   }
 
-  const scopes = ['files:read', 'chat:write', 'channels:history', 'groups:history'];
+  const scopes = ['files:read', 'chat:write'];
   const redirectUri = `${config.server.baseUrl}/slack/oauth_redirect`;
 
   const installUrl = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes.join(',')}&redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -170,67 +184,10 @@ expressApp.get('/slack/oauth_redirect', async (req, res) => {
   }
 });
 
-// 홈 페이지
+// 홈 페이지 (랜딩 페이지)
 expressApp.get('/', (req, res) => {
   const hasOAuth = config.slack.clientId && config.slack.clientSecret;
-
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Slack Markdown Viewer</title>
-      <style>
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          margin: 0;
-          background-color: #f6f8fa;
-        }
-        .container {
-          text-align: center;
-          padding: 40px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          max-width: 500px;
-        }
-        h1 { color: #24292f; margin-bottom: 16px; }
-        p { color: #57606a; line-height: 1.6; }
-        code {
-          background-color: #f6f8fa;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-family: monospace;
-        }
-        .install-link {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 12px 24px;
-          background: #4A154B;
-          color: white;
-          text-decoration: none;
-          border-radius: 6px;
-          font-weight: 500;
-          transition: background 0.2s;
-        }
-        .install-link:hover {
-          background: #611f69;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>Slack Markdown Viewer</h1>
-        <p>Upload a <code>.md</code> file to any Slack channel where this bot is installed.</p>
-        <p>The bot will automatically render it and post a link to view the formatted markdown.</p>
-        ${hasOAuth ? '<a href="/slack/install" class="install-link">Add to Slack</a>' : ''}
-      </div>
-    </body>
-    </html>
-  `);
+  res.render('landing', { hasOAuth });
 });
 
 // 앱 시작

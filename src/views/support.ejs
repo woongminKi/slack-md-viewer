@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support - Slack Markdown Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background-color: #f6f8fa;
+      color: #24292f;
+      line-height: 1.6;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 48px 20px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .header p {
+      opacity: 0.9;
+      font-size: 16px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      color: #24292f;
+      font-size: 20px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #667eea;
+    }
+    h3 {
+      color: #24292f;
+      font-size: 16px;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    p, li {
+      color: #57606a;
+      margin-bottom: 12px;
+    }
+    ul {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .contact-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 32px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .contact-box h2 {
+      color: white;
+      border-bottom-color: rgba(255,255,255,0.3);
+    }
+    .contact-box p {
+      color: rgba(255,255,255,0.9);
+    }
+    .email-link {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 14px 28px;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 18px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .email-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .response-time {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    .faq-item {
+      padding: 20px 0;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .faq-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .faq-item:first-child {
+      padding-top: 0;
+    }
+    .faq-item h4 {
+      color: #24292f;
+      font-size: 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq-item h4::before {
+      content: "Q";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: #667eea;
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .faq-item p {
+      margin-left: 32px;
+    }
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #24292f;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .github-link:hover {
+      background: #32383f;
+    }
+    .github-link svg {
+      width: 20px;
+      height: 20px;
+    }
+    .support-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .support-option {
+      padding: 20px;
+      background: #f6f8fa;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .support-option .icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .support-option h4 {
+      color: #24292f;
+      margin-bottom: 4px;
+    }
+    .support-option p {
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .lang-switch {
+      text-align: right;
+      margin-bottom: 16px;
+    }
+    .lang-switch a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .lang-switch a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 480px) {
+      .support-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Support</h1>
+    <p>Slack Markdown Viewer</p>
+  </div>
+
+  <div class="container">
+    <div class="lang-switch">
+      <a href="#english">English</a> | <a href="#korean">한국어</a>
+    </div>
+
+    <!-- English Version -->
+    <section id="english">
+      <div class="contact-box">
+        <h2>Contact Us</h2>
+        <p>Need help? Have questions? We're here to assist you.</p>
+        <a href="mailto:support@slackmdviewer.com" class="email-link">
+          support@slackmdviewer.com
+        </a>
+        <div class="response-time">
+          Response within 2 business days
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Support Options</h2>
+        <div class="support-options">
+          <div class="support-option">
+            <div class="icon">:e-mail:</div>
+            <h4>Email Support</h4>
+            <p>For general inquiries and help</p>
+          </div>
+          <div class="support-option">
+            <div class="icon">:bug:</div>
+            <h4>Bug Reports</h4>
+            <p>Report issues on GitHub</p>
+          </div>
+          <div class="support-option">
+            <div class="icon">:bulb:</div>
+            <h4>Feature Requests</h4>
+            <p>Suggest new features</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="https://github.com/your-repo/slack-markdown-viewer/issues" target="_blank" class="github-link">
+            <svg viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            Open GitHub Issues
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+          <h4>The bot isn't responding to my markdown files</h4>
+          <p>Make sure the bot is invited to the channel where you're uploading files. Type <code>@Markdown Viewer</code> in the channel and invite the bot when prompted.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>My rendered link shows "Not Found"</h4>
+          <p>Rendered files are automatically deleted after 24 hours. Please re-upload your markdown file to generate a new link.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Can I use this in private channels?</h4>
+          <p>Yes! Just invite the bot to your private channel. The bot only has access to channels where it's explicitly invited.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>How do I uninstall the app?</h4>
+          <p>Go to your Slack workspace settings > Manage apps > Find "Markdown Viewer" > Remove. All associated data will be deleted immediately.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Is my data secure?</h4>
+          <p>Yes. We only process markdown files temporarily, use HTTPS encryption, and automatically delete all content after 24 hours. See our <a href="/privacy">Privacy Policy</a> for details.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Does the app support Mermaid diagrams?</h4>
+          <p>Yes! Mermaid diagram syntax in your markdown files will be automatically rendered as interactive diagrams.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Korean Version -->
+    <section id="korean" style="margin-top: 48px;">
+      <div class="contact-box">
+        <h2>문의하기</h2>
+        <p>도움이 필요하신가요? 질문이 있으신가요? 도와드리겠습니다.</p>
+        <a href="mailto:support@slackmdviewer.com" class="email-link">
+          support@slackmdviewer.com
+        </a>
+        <div class="response-time">
+          2 영업일 이내 답변
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>지원 옵션</h2>
+        <div class="support-options">
+          <div class="support-option">
+            <div class="icon">:e-mail:</div>
+            <h4>이메일 지원</h4>
+            <p>일반 문의 및 도움말</p>
+          </div>
+          <div class="support-option">
+            <div class="icon">:bug:</div>
+            <h4>버그 리포트</h4>
+            <p>GitHub에서 이슈 보고</p>
+          </div>
+          <div class="support-option">
+            <div class="icon">:bulb:</div>
+            <h4>기능 요청</h4>
+            <p>새로운 기능 제안</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="https://github.com/your-repo/slack-markdown-viewer/issues" target="_blank" class="github-link">
+            <svg viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            GitHub Issues 열기
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>자주 묻는 질문</h2>
+
+        <div class="faq-item">
+          <h4>봇이 마크다운 파일에 응답하지 않아요</h4>
+          <p>파일을 업로드하는 채널에 봇이 초대되어 있는지 확인하세요. 채널에서 <code>@Markdown Viewer</code>를 입력하고 프롬프트가 나타나면 봇을 초대하세요.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>렌더링된 링크가 "Not Found"로 표시돼요</h4>
+          <p>렌더링된 파일은 24시간 후 자동으로 삭제됩니다. 마크다운 파일을 다시 업로드하여 새 링크를 생성하세요.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>비공개 채널에서 사용할 수 있나요?</h4>
+          <p>네! 비공개 채널에 봇을 초대하시면 됩니다. 봇은 명시적으로 초대된 채널에만 접근할 수 있습니다.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>앱을 제거하려면 어떻게 하나요?</h4>
+          <p>Slack 워크스페이스 설정 > 앱 관리 > "Markdown Viewer" 찾기 > 제거를 클릭하세요. 모든 관련 데이터가 즉시 삭제됩니다.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>데이터는 안전한가요?</h4>
+          <p>네. 마크다운 파일만 일시적으로 처리하고, HTTPS 암호화를 사용하며, 24시간 후 모든 콘텐츠를 자동 삭제합니다. 자세한 내용은 <a href="/privacy">개인정보 보호정책</a>을 참조하세요.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>앱이 Mermaid 다이어그램을 지원하나요?</h4>
+          <p>네! 마크다운 파일의 Mermaid 다이어그램 문법이 자동으로 인터랙티브 다이어그램으로 렌더링됩니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <a href="/" class="back-link">&larr; Back to Home</a>
+  </div>
+</body>
+</html>

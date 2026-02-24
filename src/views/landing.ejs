@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slack Markdown Viewer - Render .md Files Beautifully</title>
+  <meta name="description" content="Upload .md files to Slack and instantly view beautifully rendered markdown with syntax highlighting, tables, and Mermaid diagrams.">
+  <meta property="og:title" content="Slack Markdown Viewer">
+  <meta property="og:description" content="Render markdown files beautifully in Slack">
+  <meta property="og:type" content="website">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background-color: #f6f8fa;
+      color: #24292f;
+      line-height: 1.6;
+    }
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 80px 20px;
+      text-align: center;
+      color: white;
+    }
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero .logo {
+      font-size: 72px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+    .hero .tagline {
+      font-size: 22px;
+      opacity: 0.95;
+      margin-bottom: 32px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 48px;
+      background: white;
+      color: #4A154B;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .hero .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .hero .cta-button svg {
+      width: 28px;
+      height: 28px;
+    }
+    .hero-note {
+      margin-top: 16px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    /* How It Works Section */
+    .section {
+      padding: 80px 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      color: #24292f;
+      margin-bottom: 48px;
+    }
+    .how-it-works {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .step {
+      flex: 1;
+      min-width: 200px;
+      max-width: 280px;
+      text-align: center;
+      padding: 32px 24px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .step .number {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .step .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .step h3 {
+      font-size: 18px;
+      color: #24292f;
+      margin-bottom: 8px;
+    }
+    .step p {
+      font-size: 14px;
+      color: #57606a;
+    }
+    .step-arrow {
+      font-size: 32px;
+      color: #8b949e;
+    }
+
+    /* Features Section */
+    .features-section {
+      background: white;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+    .feature-card {
+      padding: 32px;
+      background: #f6f8fa;
+      border-radius: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .feature-card .icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 20px;
+      color: #24292f;
+      margin-bottom: 12px;
+    }
+    .feature-card p {
+      font-size: 15px;
+      color: #57606a;
+    }
+
+    /* Supported Syntax Section */
+    .syntax-section {
+      background: #f6f8fa;
+    }
+    .syntax-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .syntax-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .syntax-item .check {
+      color: #2da44e;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .syntax-item span {
+      font-size: 15px;
+      color: #24292f;
+    }
+
+    /* Demo Section */
+    .demo-section {
+      background: white;
+    }
+    .demo-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .demo-code {
+      background: #24292f;
+      border-radius: 12px;
+      padding: 24px;
+      overflow-x: auto;
+    }
+    .demo-code pre {
+      color: #c9d1d9;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .demo-code .comment { color: #8b949e; }
+    .demo-code .heading { color: #79c0ff; }
+    .demo-code .code-fence { color: #a5d6ff; }
+    .demo-rendered {
+      background: white;
+      border: 1px solid #e1e4e8;
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .demo-rendered h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #24292f;
+    }
+    .demo-rendered p {
+      color: #57606a;
+      margin-bottom: 16px;
+    }
+    .demo-rendered .code-block {
+      background: #f6f8fa;
+      border-radius: 6px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .demo-rendered .code-block .keyword { color: #cf222e; }
+    .demo-rendered .code-block .function { color: #8250df; }
+    .demo-rendered .code-block .string { color: #0a3069; }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 80px 20px;
+      text-align: center;
+      color: white;
+    }
+    .cta-section h2 {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+    .cta-section p {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 32px;
+    }
+    .cta-section .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 48px;
+      background: white;
+      color: #4A154B;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .cta-section .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .cta-section .cta-button svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Footer */
+    .footer {
+      background: #24292f;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .footer-links {
+      margin-bottom: 20px;
+    }
+    .footer-links a {
+      color: #8b949e;
+      text-decoration: none;
+      margin: 0 16px;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: white;
+    }
+    .footer-copyright {
+      color: #57606a;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 32px;
+      }
+      .hero .tagline {
+        font-size: 18px;
+      }
+      .step-arrow {
+        display: none;
+      }
+      .how-it-works {
+        flex-direction: column;
+      }
+      .demo-container {
+        grid-template-columns: 1fr;
+      }
+      .section-title {
+        font-size: 26px;
+      }
+    }
+    @media (max-width: 480px) {
+      .hero {
+        padding: 60px 20px;
+      }
+      .hero .cta-button {
+        padding: 14px 32px;
+        font-size: 16px;
+      }
+      .section {
+        padding: 60px 20px;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="logo">:page_facing_up:</div>
+      <h1>Slack Markdown Viewer</h1>
+      <p class="tagline">
+        Upload <code>.md</code> files to Slack and instantly view beautifully rendered markdown with syntax highlighting.
+      </p>
+      <% if (hasOAuth) { %>
+      <a href="/slack/install" class="cta-button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+        </svg>
+        Add to Slack
+      </a>
+      <% } %>
+      <p class="hero-note">Free to use. Files auto-deleted after 24 hours.</p>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="section">
+    <h2 class="section-title">How It Works</h2>
+    <div class="how-it-works">
+      <div class="step">
+        <div class="number">1</div>
+        <div class="icon">:open_file_folder:</div>
+        <h3>Upload .md File</h3>
+        <p>Drag and drop your markdown file to any Slack channel where the bot is installed</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="number">2</div>
+        <div class="icon">:magic_wand:</div>
+        <h3>Auto Rendering</h3>
+        <p>The bot automatically detects and renders your markdown into beautiful HTML</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="number">3</div>
+        <div class="icon">:link:</div>
+        <h3>Get Shareable Link</h3>
+        <p>Receive a link to view the rendered content with your team</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section features-section">
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">:art:</div>
+        <h3>GitHub-Style Rendering</h3>
+        <p>Beautiful, familiar formatting that matches GitHub's markdown style. Your documentation looks professional and consistent.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">:high_brightness:</div>
+        <h3>Syntax Highlighting</h3>
+        <p>Code blocks are automatically highlighted for 100+ programming languages. Just specify the language after the code fence.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">:bar_chart:</div>
+        <h3>Mermaid Diagrams</h3>
+        <p>Create flowcharts, sequence diagrams, and more using Mermaid syntax. Diagrams are rendered interactively.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">:lock:</div>
+        <h3>Privacy-First</h3>
+        <p>Files are automatically deleted after 24 hours. We never share your data with third parties.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">:rocket:</div>
+        <h3>Instant & Automatic</h3>
+        <p>No commands needed. Just upload a .md file and the bot handles everything automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">:globe_with_meridians:</div>
+        <h3>Shareable Links</h3>
+        <p>Share rendered documents with anyone. Great for documentation, meeting notes, and technical specs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Syntax Section -->
+  <section class="section syntax-section">
+    <h2 class="section-title">Supported Markdown Syntax</h2>
+    <div class="syntax-grid">
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Headers (H1-H6)</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Bold, Italic, Strikethrough</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Ordered & Unordered Lists</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Task Lists (Checkboxes)</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Code Blocks & Inline Code</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Tables</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Blockquotes</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Links & Images</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Horizontal Rules</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Mermaid Diagrams</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Syntax Highlighting</span>
+      </div>
+      <div class="syntax-item">
+        <span class="check">✓</span>
+        <span>Emoji Shortcodes</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo Section -->
+  <section class="section demo-section">
+    <h2 class="section-title">See It In Action</h2>
+    <div class="demo-container">
+      <div class="demo-code">
+        <pre><span class="heading"># Welcome</span>
+
+This is <span class="code-fence">**beautifully**</span> rendered markdown.
+
+<span class="code-fence">```javascript</span>
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+<span class="code-fence">```</span>
+
+<span class="comment"><!-- Mermaid diagrams work too! --></span>
+<span class="code-fence">```mermaid</span>
+graph LR
+  A[Upload] --> B[Render]
+  B --> C[Share]
+<span class="code-fence">```</span></pre>
+      </div>
+      <div class="demo-rendered">
+        <h2>Welcome</h2>
+        <p>This is <strong>beautifully</strong> rendered markdown.</p>
+        <div class="code-block">
+          <span class="keyword">function</span> <span class="function">greet</span>(name) {
+  <span class="keyword">return</span> <span class="string">`Hello, ${name}!`</span>;
+}
+        </div>
+        <p style="margin-top: 16px; font-size: 13px; color: #8b949e;">
+          + Interactive Mermaid diagram renders here
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <h2>Ready to Get Started?</h2>
+    <p>Add Slack Markdown Viewer to your workspace in seconds.</p>
+    <% if (hasOAuth) { %>
+    <a href="/slack/install" class="cta-button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+      </svg>
+      Add to Slack
+    </a>
+    <% } %>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="/support">Support</a>
+      <a href="https://github.com/your-repo/slack-markdown-viewer" target="_blank">GitHub</a>
+    </div>
+    <p class="footer-copyright">
+      &copy; 2025 Slack Markdown Viewer. All rights reserved.
+    </p>
+  </footer>
+</body>
+</html>
